@@ -9,8 +9,9 @@ public class Stage{
 
     void paint(Graphics g, Point mousePos){ 
         grid.paint(g, mousePos);
-        //lion.paint(g);
-       // stage.lion.paint(g);
+        lion.paint(g);
+        rabbit.paint(g);
+        puppy.paint(g);
     }
 }
 
@@ -18,51 +19,62 @@ interface Actor{
     //specify paint method
     void paint(Graphics g);
 }
-//each subclass must define paint method
-class Lion implements Actor{
+
+class Animal implements Actor{
     Cell cell = new Cell(0, 0);
-    
-    //constructor
-    public Lion(int x, int y){
+    String color = "";
+    //constructors
+    public Animal(){
+        cell.setBounds(0, 0, 35, 35);
+    }
+    public Animal(int x, int y){
         cell.setBounds(x, y, 35, 35);
     }
 
     public void paint(Graphics g){ //implementing the interface
         g.setColor(Color.RED);
+        
+        if(color.equals("WHITE")){
+            g.setColor(Color.WHITE);
+        }
+        if(color.equals("GREEN")){
+            g.setColor(Color.GREEN);
+        }
         g.fillRect((int)cell.getX(),(int)cell.getY(), 35, 35);
         g.setColor(Color.BLACK);
         g.drawRect((int)cell.getX(),(int)cell.getY(), 35, 35);
     }
 }
 
-class Rabbit implements Actor{
-    Cell cell = new Cell(0, 0);
-    
+class Lion extends Animal{
+    Animal a = new Animal();
+    public Lion(){
+        color = "RED";
+    }
+    public Lion(int x, int y){
+        cell.setBounds(x, y, 35, 35);
+        color = "RED";
+    }
+}
 
+class Rabbit extends Animal{
+    Animal a = new Animal();
+    public Rabbit(){
+        super.color = "WHITE";
+    }
     public Rabbit(int x, int y){
         cell.setBounds(x, y, 35, 35);
-    }
-
-    public void paint(Graphics g){ //implementing the interface
-        g.setColor(Color.WHITE);
-        g.fillRect((int)cell.getX(),(int)cell.getY(), 35, 35);
-        g.setColor(Color.BLACK);
-        g.drawRect((int)cell.getX(),(int)cell.getY(), 35, 35);
+        super.color = "WHITE";
     }
 }
 
-class Puppy implements Actor{
-    Cell cell = new Cell(0, 0);
-    
-
+class Puppy extends Animal{
+    Animal a = new Animal();
+    public Puppy(){
+        super.color = "GREEN";
+    }
     public Puppy(int x, int y){
         cell.setBounds(x, y, 35, 35);
-    }
-
-    public void paint(Graphics g){ //implementing the interface
-        g.setColor(Color.GREEN);
-        g.fillRect((int)cell.getX(),(int)cell.getY(), 35, 35);
-        g.setColor(Color.BLACK);
-        g.drawRect((int)cell.getX(),(int)cell.getY(), 35, 35);
+        super.color = "GREEN";
     }
 }
