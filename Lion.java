@@ -1,22 +1,30 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Lion extends Actor {
-    
-    public Lion(Cell loc) {
+
+    public Lion(Cell loc, float redness) {
         this.loc = loc;
-        //this.colour = Color.RED;
+        this.redness = redness;
+        this.colour = Color.RED;
+        this.turns = 1;
+        this.moves = 1;
+        setPoly();
+    }
+
+    public void setPoly(){
+        this.display = new ArrayList<Polygon>();
         Polygon mane = new Polygon();
-        Polygon lionFace = new Polygon();
-        poly.add(mane);
         mane.addPoint(loc.x + 6, loc.y + 6);
         mane.addPoint(loc.x + 29, loc.y + 6);
         mane.addPoint(loc.x + 29, loc.y + 29);
         mane.addPoint(loc.x + 6, loc.y + 29);
-        poly.add(lionFace);
-        lionFace.addPoint(loc.x + 11, loc.y + 11);
-        lionFace.addPoint(loc.x + 24, loc.y + 11);
-        lionFace.addPoint(loc.x + 24, loc.y + 24);
-        lionFace.addPoint(loc.x + 11, loc.y + 24);
+        Polygon face = new Polygon();
+        face.addPoint(loc.x + 11, loc.y + 11);
+        face.addPoint(loc.x + 24, loc.y + 11);
+        face.addPoint(loc.x + 24, loc.y + 24);
+        face.addPoint(loc.x + 11, loc.y + 24);
+        this.display.add(mane);
+        this.display.add(face);
     }
-
 }

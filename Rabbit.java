@@ -1,29 +1,37 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Rabbit extends Actor {
 
-    public Rabbit(Cell loc) {
+    public Rabbit(Cell loc, float redness) {
         this.loc = loc;
+        this.redness = redness;
         this.colour = Color.WHITE;
-        Polygon rabbitEar1 = new Polygon();
-        Polygon rabbitEar2 = new Polygon();
-        Polygon rabbitFace = new Polygon();
-        poly.add(rabbitEar1);
-        rabbitEar1.addPoint(loc.x + 11, loc.y + 5);
-        rabbitEar1.addPoint(loc.x + 11, loc.y + 12);
-        rabbitEar1.addPoint(loc.x + 16, loc.y + 12);
-        rabbitEar1.addPoint(loc.x + 16, loc.y + 5);
-        poly.add(rabbitEar2);
-        rabbitEar2.addPoint(loc.x + 19, loc.y + 5);
-        rabbitEar2.addPoint(loc.x + 19, loc.y + 12);
-        rabbitEar2.addPoint(loc.x + 24, loc.y + 12);
-        rabbitEar2.addPoint(loc.x + 24, loc.y + 5);
-        poly.add(rabbitFace);
-        rabbitFace.addPoint(loc.x+8, loc.y + 12);
-        rabbitFace.addPoint(loc.x+27, loc.y + 12);
-        rabbitFace.addPoint(loc.x+27, loc.y + 25);
-        rabbitFace.addPoint(loc.x+8, loc.y + 25);
-        
+        this.turns = 1;
+        this.moves = 5;
+        setPoly();
+    }
+
+    public void setPoly(){
+        this.display = new ArrayList<Polygon>();
+        Polygon ear1 = new Polygon();
+        ear1.addPoint(loc.x + 11, loc.y + 5);
+        ear1.addPoint(loc.x + 11, loc.y + 12);
+        ear1.addPoint(loc.x + 16, loc.y + 12);
+        ear1.addPoint(loc.x + 16, loc.y + 5);
+        Polygon ear2 = new Polygon();
+        ear2.addPoint(loc.x + 19, loc.y + 5);
+        ear2.addPoint(loc.x + 19, loc.y + 12);
+        ear2.addPoint(loc.x + 24, loc.y + 12);
+        ear2.addPoint(loc.x + 24, loc.y + 5);
+        Polygon face = new Polygon();
+        face.addPoint(loc.x + 8, loc.y + 12);
+        face.addPoint(loc.x + 27, loc.y + 12);
+        face.addPoint(loc.x + 27, loc.y + 25);
+        face.addPoint(loc.x + 8, loc.y + 25);
+        this.display.add(ear1);
+        this.display.add(ear2);
+        this.display.add(face);
     }
 
 }

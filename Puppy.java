@@ -1,27 +1,34 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Puppy extends Actor {
 
-    public Puppy(Cell loc){
+    public Puppy(Cell loc, float redness){
         this.loc = loc;
+        this.redness = redness;
         this.colour = Color.GREEN;
-        Polygon puppyEar1 = new Polygon();
-        Polygon puppyEar2 = new Polygon();
-        Polygon puppyFace = new Polygon();
-    
-        poly.add(puppyEar1);
-        puppyEar1.addPoint(loc.x + 5, loc.y + 5);
-        puppyEar1.addPoint(loc.x + 15, loc.y + 5);
-        puppyEar1.addPoint(loc.x + 5, loc.y + 15);
-        poly.add(puppyEar2);
-        puppyEar2.addPoint(loc.x + 20, loc.y + 5);
-        puppyEar2.addPoint(loc.x + 30, loc.y + 5);
-        puppyEar2.addPoint(loc.x + 30, loc.y + 15);
-        poly.add(puppyFace);
-        puppyFace.addPoint(loc.x+8, loc.y + 7);
-        puppyFace.addPoint(loc.x+27, loc.y + 7);
-        puppyFace.addPoint(loc.x+27, loc.y + 25);
-        puppyFace.addPoint(loc.x+8, loc.y + 25);
+        this.turns = 1;
+        this.moves = 3;
+        setPoly();
     }
 
+    public void setPoly(){
+        this.display = new ArrayList<Polygon>();
+        Polygon ear1 = new Polygon();
+        ear1.addPoint(loc.x + 5, loc.y + 5);
+        ear1.addPoint(loc.x + 15, loc.y + 5);
+        ear1.addPoint(loc.x + 5, loc.y + 15);
+        Polygon ear2 = new Polygon();
+        ear2.addPoint(loc.x + 20, loc.y + 5);
+        ear2.addPoint(loc.x + 30, loc.y + 5);
+        ear2.addPoint(loc.x + 30, loc.y + 15);
+        Polygon face = new Polygon();
+        face.addPoint(loc.x + 8, loc.y + 7);
+        face.addPoint(loc.x + 27, loc.y + 7);
+        face.addPoint(loc.x + 27, loc.y + 25);
+        face.addPoint(loc.x + 8, loc.y + 25);
+        this.display.add(face);
+        this.display.add(ear1);
+        this.display.add(ear2);
+    }
 }

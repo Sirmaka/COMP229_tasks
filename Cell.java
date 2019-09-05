@@ -3,10 +3,14 @@ import java.awt.*;
 class Cell extends Rectangle {
     // fields
     static int size = 35;
+    char col;
+    int row;
 
     //constructors
-    public Cell(int x, int y){
+    public Cell(char col, int row, int x, int y){
         super(x,y,size,size);
+        this.col = col;
+        this.row = row;
     }
 
     //methods
@@ -27,5 +31,13 @@ class Cell extends Rectangle {
         } else {
             return false;
         }
+    }
+
+    public int leftOfComparison(Cell c){
+        return Character.compare(col, c.col);
+    }
+
+    public int aboveComparison(Cell c){
+        return Integer.compare(row, c.row);
     }
 }
