@@ -7,10 +7,20 @@ public class Stage {
     Grid grid;
     ArrayList<Actor> actors;
     List<Cell> cellOverlay;
+    List<MenuItem> menuOverlay;
     Optional<Actor> actorInAction;
 
-    enum State {ChoosingActor, SelectingNewLocation, CPUMoving}
-    State currentState = State.ChoosingActor;
+    //new state objects
+    State ChoosingActor;
+    State SelectingNewLocation;
+    State CPUMoving;
+    State SelectingMenuItem;
+    State SelectingTarget;
+
+    State state = ChoosingActor;
+
+    //enum State {ChoosingActor, SelectingNewLocation, CPUMoving, SelectingMenuItem, SelectingTarget}
+    //State currentState = State.ChoosingActor;
 
 
     
@@ -18,70 +28,64 @@ public class Stage {
         grid = new Grid();
         actors = new ArrayList<Actor>();
         cellOverlay = new ArrayList<Cell>();
-        currentState = State.ChoosingActor;
+        menuOverlay = new ArrayList<MenuItem>();
+        ChoosingActor = new ChoosingActor(this);
+        SelectingNewLocation = new SelectingNewLocation(this);
+        CPUMoving = new CPUMoving(this);
+        SelectingMenuItem = new SelectingMenuItem(this);
+        SelectingTarget = new SelectingTarget(this);
     }
 
     public void paint(Graphics g, Point mouseLoc){
 
-        // do we have AI moves to make
-        if (currentState == State.CPUMoving){
-            for(Actor a: actors){
-                if (!a.isTeamRed()){
-                    List<Cell> possibleLocs = getClearRadius(a.loc, a.moves);
-                    //needs to change
-                    /*
-                    If they are on an even-numbered then they should move randomly, 
-                    but if they are on an odd-numbered row they should 
-                    _always move to the left-most possible location_.
-                    */
-                    int moveCPUChooses;
-                    //Optional<Cell> c = grid.cellAtColRow(a.loc.col, a.loc.row - 1);
-                    //if(c.isPresent() && a.loc.row % 2 != 0){
-                    if(a.loc.row % 2 != 0){  
-                        CPUStrategy e = new Odd();
-                        moveCPUChooses = e.strategy(a.loc.row - 1);
-                    } else {
-                        CPUStrategy e = new Even();
-                        moveCPUChooses = e.strategy(possibleLocs.size());
-                    }
-                    a.setLocation(possibleLocs.get(moveCPUChooses));
-                }
-            }
-            currentState = State.ChoosingActor;
-            for(Actor a: actors){
-                a.turns = 1;
-            }
-        }
+        // If state is CPUMoving, this will move the CPU units
+        state.run();
+        //not in a class (NIAC)
         grid.paint(g,mouseLoc);
         grid.paintOverlay(g, cellOverlay, new Color(0f, 0f, 1f, 0.5f));
-
+        //NIAC
         for(Actor a: actors){
             a.paint(g);   
         }
-        // state display
+        
+        // state display. NIAC
         g.setColor(Color.DARK_GRAY);
-        g.drawString(currentState.toString(),720,20);
+        g.drawString(state.toString(),720,20); 
 
+        // display cell. NIAC
         Optional<Cell> cap = grid.cellAtPoint(mouseLoc);
         if (cap.isPresent()){
             Cell capc = cap.get();
             g.setColor(Color.DARK_GRAY);
             g.drawString(String.valueOf(capc.col) + String.valueOf(capc.row), 720, 50);
+            g.drawString(capc.description, 820, 50);
+            g.drawString("movement cost", 720, 65);
+            g.drawString(String.valueOf(capc.movementCost()), 820, 65);
         } 
-        // agent display
+
+        // agent display. NIAC
         int yloc = 138;
         for(int i = 0; i < actors.size(); i++){
             Actor a = actors.get(i);
-            g.drawString(a.getClass().toString(),720, yloc + 50*i);
-            g.drawString("location:", 730, yloc + 13 + 50 * i);
-            g.drawString(Character.toString(a.loc.col) + Integer.toString(a.loc.row), 840, yloc + 13 + 50 * i);
-            g.drawString("redness:", 730, yloc + 26 + 50*i);
-            g.drawString(Float.toString(a.redness), 840, yloc + 26 + 50*i);
+            g.drawString(a.getClass().toString(),720, yloc + 70*i);
+            g.drawString("location:", 730, yloc + 13 + 70 * i);
+            g.drawString(Character.toString(a.loc.col) + Integer.toString(a.loc.row), 820, yloc + 13 + 70 * i);
+            g.drawString("redness:", 730, yloc + 26 + 70*i);
+            g.drawString(Float.toString(a.redness), 820, yloc + 26 + 70*i);
+            g.drawString("strat:", 730, yloc + 39 + 70*i);
+            g.drawString(a.strat.toString(), 820, yloc + 39 + 70*i);
         }
+
+        // menu overlay (on top of everything else). NIAC
+        for(MenuItem mi: menuOverlay){
+            mi.paint(g);
+        }
+
+
     }
 
-    public List<Cell> getClearRadius(Cell from, int size){
-        List<Cell> init = grid.getRadius(from, size);
+    public List<Cell> getClearRadius(Cell from, int size, boolean considerCost){
+        List<Cell> init = grid.getRadius(from, size, considerCost);
         for(Actor a: actors){
             init.remove(a.loc);
         }
@@ -89,15 +93,42 @@ public class Stage {
     }
 
     public void mouseClicked(int x, int y){
-        switch (currentState) {
+        //state.mouseClicked(x, y);
+        //temp solution for debugging purposes
+        if(state.equals(ChoosingActor)){
+                    //ArrayList<Actor> actors = stage.getActors();
+            actorInAction = Optional.empty();
+            for (Actor a : actors) {
+                if (a.loc.contains(x, y) && a.isTeamRed() && a.turns > 0) {
+                    cellOverlay = grid.getRadius(a.loc, a.moves, true);
+                    actorInAction = Optional.of(a);
+                    setState(getSelectingNewLocation());
+                }
+        }
+        //create the menu
+        if(!stage.actorInAction.isPresent()){
+            stage.setState(stage.SelectingMenuItem);
+            stage.menuOverlay.add(new MenuItem("Oops", x, y, () -> stage.setState(stage.getChoosingActor())));
+            stage.menuOverlay.add(new MenuItem("End Turn", x, y+MenuItem.height, () -> stage.setState(stage.getCPUMoving())));
+            stage.menuOverlay.add(new MenuItem("End Game", x, y+MenuItem.height*2, () -> System.exit(0)));
+        }
+        }
+        switch (state) {
             case ChoosingActor:
                 actorInAction = Optional.empty();
                 for (Actor a : actors) {
                     if (a.loc.contains(x, y) && a.isTeamRed() && a.turns > 0) {
-                        cellOverlay = grid.getRadius(a.loc, a.moves);
+                        cellOverlay = grid.getRadius(a.loc, a.moves, true);
                         actorInAction = Optional.of(a);
                         currentState = State.SelectingNewLocation;
                     }
+                }
+                //create the menu
+                if(!actorInAction.isPresent()){
+                    currentState = State.SelectingMenuItem;
+                    menuOverlay.add(new MenuItem("Oops", x, y, () -> currentState = State.ChoosingActor));
+                    menuOverlay.add(new MenuItem("End Turn", x, y+MenuItem.height, () -> currentState = State.CPUMoving));
+                    menuOverlay.add(new MenuItem("End Game", x, y+MenuItem.height*2, () -> System.exit(0)));
                 }
                 break;
             case SelectingNewLocation:
@@ -107,27 +138,86 @@ public class Stage {
                         clicked = Optional.of(c);
                     }
                 }
-                cellOverlay = new ArrayList<Cell>();
                 if (clicked.isPresent() && actorInAction.isPresent()) {
+                    cellOverlay = new ArrayList<Cell>();
                     actorInAction.get().setLocation(clicked.get());
                     actorInAction.get().turns--;
-                    int redsWithMovesLeft = 0;
-                    for(Actor a: actors){
-                        if (a.isTeamRed() && a.turns > 0) {
-                            redsWithMovesLeft++;
+                    //firing menu
+                    menuOverlay.add(new MenuItem("Fire", x, y, () -> {
+                        cellOverlay = grid.getRadius(actorInAction.get().loc, actorInAction.get().range, false);
+                        cellOverlay.remove(actorInAction.get().loc);
+                            currentState = State.SelectingTarget;
+                    }));
+                    currentState = State.SelectingMenuItem;
+                } 
+                break;
+            case SelectingMenuItem:
+                for(MenuItem mi : menuOverlay){
+                    if (mi.contains(x,y)){
+                        mi.action.run();
+                        menuOverlay = new ArrayList<MenuItem>();
+                    }
+                }
+                break;
+            case SelectingTarget:
+                for(Cell c: cellOverlay){
+                    if (c.contains(x, y)){
+                        Optional<Actor> oa = actorAt(c);
+                        if (oa.isPresent()){
+                            oa.get().makeRedder(0.1f);
                         }
                     }
-                    if (redsWithMovesLeft > 0){
-                        currentState = State.ChoosingActor;
-                    } else {
-                        currentState = State.CPUMoving;
-                    }
-                } 
+                }
+                cellOverlay = new ArrayList<Cell>();
+                currentState = State.ChoosingActor;
                 break;
             default:
                 System.out.println(currentState);
                 break;
         }
+        */
 
     }
+
+    public Optional<Actor> actorAt(Cell c){
+        for(Actor a: actors){
+            if (a.loc == c){
+                return Optional.of(a);
+            }
+        }
+        return Optional.empty();
+    }
+
+    //setters and getters for State objects
+    public ArrayList<Actor> getActors(){
+        return actors;
+    }
+
+    public Grid getGrid(){
+        return grid;
+    }
+
+    public void setState(State state){
+        this.state = state;
+    }
+
+    public State getChoosingActor(){
+        return ChoosingActor;
+    }
+    public State getSelectingMenuItem(){
+        return SelectingMenuItem;
+    }
+    public State getSelectingNewLocation(){
+        return SelectingNewLocation;
+    }
+    public State getCPUMoving(){
+        return CPUMoving;
+    }
+    public State getSelectingTarget(){
+        return SelectingTarget;
+    }
+    
+
+    
+
 }
