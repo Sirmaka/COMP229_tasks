@@ -27,8 +27,8 @@ class SelectingNewLocation implements State{
         } 
     }
 
-    public void run(){
-
+    public int run(){
+        return 0;
     }
 
     public String toString(){

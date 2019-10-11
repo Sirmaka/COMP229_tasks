@@ -19,8 +19,8 @@ class SelectingTarget implements State{
         stage.setState(stage.getChoosingActor());
     }
 
-    public void run(){
-
+    public int run(){
+        return 0;
     }
 
     public String toString(){

@@ -10,7 +10,7 @@ class CPUMoving implements State{
 
     }
 
-    public void run(){
+    public int run(){
         for(Actor a: stage.actors){
             if (!a.isTeamRed()){
                 List<Cell> possibleLocs = stage.getClearRadius(a.loc, a.moves, true);
@@ -23,7 +23,8 @@ class CPUMoving implements State{
             a.turns = 1;
         }
         stage.setState(stage.getChoosingActor());
-
+        
+        return 1;
     }
 
     public String toString(){
